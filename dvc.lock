@@ -1,0 +1,69 @@
+schema: '2.0'
+stages:
+  prepare:
+    cmd: python src/prepare.py
+    deps:
+    - path: src/prepare.py
+      hash: md5
+      md5: 59f8c496559e1ebd05807a2a82b87abc
+      size: 604
+      isexec: true
+    params:
+      params.yaml:
+        prepare:
+          dataset: fancyzhx/ag_news
+          n_samples: 8000
+          test_size: 0.2
+          seed: 42
+    outs:
+    - path: data/processed
+      hash: md5
+      md5: 2567b7f9529334a75ef33fe9560a9255.dir
+      size: 1921729
+      nfiles: 2
+  train:
+    cmd: python src/train.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 2567b7f9529334a75ef33fe9560a9255.dir
+      size: 1921729
+      nfiles: 2
+    - path: src/train.py
+      hash: md5
+      md5: ba8778dac9de22f953edd87c1bf88b65
+      size: 1099
+      isexec: true
+    params:
+      params.yaml:
+        train:
+          C: 1.0
+          max_features: 20000
+          ngram_max: 2
+    outs:
+    - path: models/model.joblib
+      hash: md5
+      md5: 79ab7183ca6574c9fab01e0d8aca748b
+      size: 1416284
+  evaluate:
+    cmd: python src/evaluate.py
+    deps:
+    - path: data/processed
+      hash: md5
+      md5: 2567b7f9529334a75ef33fe9560a9255.dir
+      size: 1921729
+      nfiles: 2
+    - path: models/model.joblib
+      hash: md5
+      md5: 79ab7183ca6574c9fab01e0d8aca748b
+      size: 1416284
+    - path: src/evaluate.py
+      hash: md5
+      md5: 45dd1879eb27bf1fe9de9f2860edd11d
+      size: 398
+      isexec: true
+    outs:
+    - path: metrics.json
+      hash: md5
+      md5: 14c723ea2356c82538d93658875211cb
+      size: 60
