@@ -1,9 +1,9 @@
 prepare:
   dataset: fancyzhx/ag_news
   n_samples: 8000
-  test_size: 0.2
   seed: 42
+  test_size: 0.2
 train:
-  C: 0.5
+  C: 1.0
   max_features: 5000
   ngram_max: 2

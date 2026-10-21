@@ -136,29 +136,14 @@ docker image inspect "$IMAGE:$TAG" --format '{{.Size}} bytes'
 trivy image "$IMAGE:$TAG"
 ```
 
-Record the exact image reference, measured size, scan date, and Trivy summary
-in `docs/u1-report.md`. Do not publish a `latest` tag as the deliverable.
-Never commit a GHCR token.
+## To reproduce a run 
 
-## Useful Kubernetes commands
+Reproduce a run scenario using MLFOW runId (its a git commit)
+
+and runing the following from the root directory.
+
+<run_id> -> from Mlflow displayed Run Id
 
 ```bash
-kubectl get all -n mlops
-kubectl get pvc -n mlops
-kubectl logs deployment/mlflow -n mlops
-kubectl delete -f k8s/20-mlfow.yaml -f k8s/10-postgres.yaml
-kubectl delete -f k8s/00-namespace.yaml
-kind delete cluster --name mlops
+python src/reproduce.py  <run_id>
 ```
-
-Deleting the cluster also deletes its local persistent volumes. Export or
-otherwise preserve any run data you need before destroying the cluster.
-
-## Project files
-
-- `src/`: data preparation, training, and evaluation
-- `dvc.yaml`, `params.yaml`, `dvc.lock`: pipeline, parameters, and locked state
-- `k8s/`: kind, namespace, PostgreSQL, and MLflow configuration
-- `docker/`: MLflow image and its Python database driver
-- `docs/requirements.md`: project requirements and measurable acceptance KPIs
-- `docs/u1-report.md`: U1 completion report (update measured results before submission)
