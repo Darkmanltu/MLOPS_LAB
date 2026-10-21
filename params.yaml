@@ -4,6 +4,6 @@ prepare:
   test_size: 0.2
   seed: 42
 train:
-  C: 1.0
+  C: 0.5
   max_features: 5000
   ngram_max: 2

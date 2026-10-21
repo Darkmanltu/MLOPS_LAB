@@ -1,4 +1,4 @@
-# Project requirements — v1.1
+# Project requirements — v1.2
 
 ## Purpose and scope
 
@@ -32,11 +32,8 @@ versioned Docker training image. Model serving and CI/CD are out of scope.
 | NFR-4 | Traceability: every run identifies the model settings and evaluation metrics. | Each MLflow run includes `C`, `max_features`, `ngram_max`, accuracy, and macro-F1. |
 | NFR-5 | Resource-conscious training: the model trains on CPU without GPU dependencies. | Complete training on the configured 8,000-example subset in under 120 seconds on the project machine. |
 | NFR-6 | Container traceability and security evidence. | Publish an immutable `sha-<commit>` GHCR tag; record its measured size and Trivy scan summary in `docs/u1-report.md`. |
-| NFR-7 | Usability: a new setup can follow the repository instructions without relying on the fraud-detection sample. | A clean setup can install prerequisites, deploy MLflow, run `dvc repro`, and open the MLflow UI using only `README.md`. |
 
-NFR-2, NFR-3, NFR-5, and NFR-6 are measured operationally and must be filled
-with actual results in the U1 report; the targets above are not claims that
-the measurements have already passed.
+
 
 ## Assumptions and constraints
 

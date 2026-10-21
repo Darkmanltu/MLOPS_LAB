@@ -6,3 +6,4 @@ temp/
 mlruns/
 mlflow.db
 models/model.joblib
+data/
