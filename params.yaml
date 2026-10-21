@@ -5,5 +5,5 @@ prepare:
   seed: 42
 train:
   C: 1.0
-  max_features: 20000
+  max_features: 5000
   ngram_max: 2

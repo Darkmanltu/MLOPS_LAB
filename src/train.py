@@ -1,4 +1,8 @@
-import yaml, joblib, pandas as pd, mlflow
+import os
+import yaml
+import joblib
+import pandas as pd
+import mlflow
 from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
@@ -9,9 +13,12 @@ p = yaml.safe_load(open("params.yaml"))["train"]
 train = pd.read_csv("data/processed/train.csv")
 test = pd.read_csv("data/processed/test.csv")
 
+tracking_uri = os.environ.get("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000")
+mlflow.set_tracking_uri(tracking_uri)
 mlflow.set_experiment("u1-text-classification")
-with mlflow.start_run():
+with mlflow.start_run(run_name=f"tfidf-logreg-C{p['C']}"):
     mlflow.log_params(p)
+    mlflow.set_tag("dataset", "fancyzhx/ag_news")
     model = Pipeline([
         ("tfidf", TfidfVectorizer(max_features=p["max_features"], ngram_range=(1, p["ngram_max"]))),
         ("clf", LogisticRegression(C=p["C"], max_iter=1000)),

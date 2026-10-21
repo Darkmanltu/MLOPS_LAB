@@ -1,0 +1,11 @@
+.git
+.venv
+.dvc
+.dvc-cache
+.dvc-storage
+fraud-detection
+mlruns
+mlflow.db
+kubectl
+__pycache__
+*.py[cod]
