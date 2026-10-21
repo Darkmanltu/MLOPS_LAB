@@ -18,7 +18,8 @@ mlflow.set_tracking_uri(tracking_uri)
 mlflow.set_experiment("u1-text-classification")
 with mlflow.start_run(run_name=f"tfidf-logreg-C{p['C']}"):
     mlflow.log_params(p)
-    mlflow.set_tag("dataset", "fancyzhx/ag_news")
+    commit = subprocess.run(["git", "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
+    mlflow.set_tag("git commit", commit)
     model = Pipeline([
         ("tfidf", TfidfVectorizer(max_features=p["max_features"], ngram_range=(1, p["ngram_max"]))),
         ("clf", LogisticRegression(C=p["C"], max_iter=1000)),
