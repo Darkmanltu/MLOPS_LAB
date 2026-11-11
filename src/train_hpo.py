@@ -1,4 +1,6 @@
-import json, subprocess
+import json
+import os
+import subprocess
 import mlflow, mlflow.data, mlflow.sklearn, optuna
 import numpy as np
 import pandas as pd
@@ -8,22 +10,27 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
 
-SEED = 42
+SEED = int(os.getenv("SEED", 42))
 MODEL_NAME = "agnews-clf"
 EXPERIMENT = "u2-agnews-hpo"
-N_TRIALS = 6          # reikalavimas: >= 5
-EPOCHS = 8
+N_TRIALS = int(os.getenv("N_TRIALS", 6))
+EPOCHS = int(os.getenv("EPOCHS", 8))
 
 
 def load_data():
-    # TODO: pajunk prie savo prepare išvesties. Reikia stulpelių: text, label
-    train = pd.read_csv("data/prepared/train.csv")
-    test = pd.read_csv("data/prepared/test.csv")
+    train = pd.read_csv("data/processed/train.csv")
+    test = pd.read_csv("data/processed/test.csv")
     return train, test
 
 
 def git_commit():
-    return subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    result = subprocess.run(
+        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False
+    )
+    if result.returncode:
+        print(f"Git commit metadata unavailable: {result.stderr.strip()}")
+        return None
+    return result.stdout.strip()
 
 
 def fit(params, train, test):
@@ -46,6 +53,7 @@ def fit(params, train, test):
 
 def main():
     train, test = load_data()
+    mlflow.set_tracking_uri(os.getenv("MLFLOW_TRACKING_URI", "http://127.0.0.1:5000"))
     mlflow.set_experiment(EXPERIMENT)
     mlflow.set_system_metrics_sampling_interval(1)
     commit = git_commit()
@@ -53,7 +61,8 @@ def main():
     def log_common(history, params):
         mlflow.log_params(params)
         mlflow.log_param("seed", SEED)
-        mlflow.set_tag("git_commit", commit)
+        if commit:
+            mlflow.set_tag("git_commit", commit)
         mlflow.log_input(mlflow.data.from_pandas(train, name="ag_news_train"), context="training")
         mlflow.log_input(mlflow.data.from_pandas(test, name="ag_news_test"), context="testing")
         for step, acc, f1 in history:

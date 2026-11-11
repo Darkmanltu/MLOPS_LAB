@@ -12,8 +12,11 @@ spec:
           image: agnews-api:local
           imagePullPolicy: IfNotPresent
           ports: [{containerPort: 8000}]
-          env:
-            - {name: MLFLOW_TRACKING_URI, value: "http://mlflow.mlops.svc.cluster.local:5000"}
+          envFrom:
+            - configMapRef:
+                name: train-config
+            - secretRef:
+                name: mlflow-credentials
           readinessProbe:
             httpGet: {path: /health, port: 8000}
             initialDelaySeconds: 5

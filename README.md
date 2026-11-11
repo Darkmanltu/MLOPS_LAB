@@ -111,6 +111,52 @@ force a run after choosing the desired parameter set:
 python -m dvc repro --force
 ```
 
+### Run HPO training as a Kubernetes Job
+
+The DVC prepare stage in this repository writes to `data/processed/`; the HPO
+trainer and its image use that same output. Reproduce the pipeline first so the
+training data is present, then build and load the trainer image:
+
+```bash
+python -m dvc repro
+docker build -f docker/train.Dockerfile -t agnews-train:local .
+kind load docker-image agnews-train:local --name mlops
+```
+
+Create the credentials Secret in the `mlops` namespace. Supply the actual
+credentials if MLflow authentication is enabled; otherwise use non-empty
+placeholder values. Do not commit credentials or put them in a manifest:
+
+```bash
+kubectl create secret generic mlflow-credentials -n mlops \
+  --from-literal=MLFLOW_TRACKING_USERNAME='<username-or-placeholder>' \
+  --from-literal=MLFLOW_TRACKING_PASSWORD='<password-or-placeholder>'
+```
+
+The HPO settings and tracking URI are supplied by `train-config` in
+`k8s/50-train.yaml`. Apply the Job and follow its logs:
+
+```bash
+kubectl apply -f k8s/50-train.yaml
+kubectl logs -n mlops job/agnews-train -f
+kubectl get job -n mlops
+```
+
+Confirm the Job has `COMPLETIONS 1/1` and that the MLflow UI shows a new
+`u2-agnews-hpo` parent run. After training, restart the API so it resolves the
+current `champion` model alias:
+
+```bash
+kubectl rollout restart deployment/agnews-api -n mlops
+```
+
+To run the Job again, delete the completed Job before applying the manifest:
+
+```bash
+kubectl delete job agnews-train -n mlops
+kubectl apply -f k8s/50-train.yaml
+```
+
 For a clean reproducibility check, use a separate DVC experiment or restore
 the committed `params.yaml` and `dvc.lock`, then measure `time python -m dvc repro`.
 The target is under two minutes on the same machine after the dataset is

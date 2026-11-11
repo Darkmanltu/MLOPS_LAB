@@ -1,0 +1,32 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: train-config
+  namespace: mlops
+data:
+  MLFLOW_TRACKING_URI: "http://mlflow.mlops.svc.cluster.local:5000"
+  N_TRIALS: "6"
+  EPOCHS: "8"
+  SEED: "42"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: agnews-train
+  namespace: mlops
+spec:
+  backoffLimit: 0
+  ttlSecondsAfterFinished: 3600
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+        - name: train
+          image: agnews-train:local
+          imagePullPolicy: IfNotPresent
+          command: ["python", "src/train_hpo.py"]
+          envFrom:
+            - configMapRef:
+                name: train-config
+            - secretRef:
+                name: mlflow-credentials
