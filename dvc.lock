@@ -12,22 +12,22 @@ stages:
       params.yaml:
         prepare:
           dataset: fancyzhx/ag_news
-          n_samples: 8000
+          n_samples: 5000
           seed: 42
           test_size: 0.2
     outs:
     - path: data/processed
       hash: md5
-      md5: 2567b7f9529334a75ef33fe9560a9255.dir
-      size: 1921729
+      md5: 15d36290db835998c79273810b039288.dir
+      size: 1200622
       nfiles: 2
   train:
     cmd: python src/train.py
     deps:
     - path: data/processed
       hash: md5
-      md5: 2567b7f9529334a75ef33fe9560a9255.dir
-      size: 1921729
+      md5: 15d36290db835998c79273810b039288.dir
+      size: 1200622
       nfiles: 2
     - path: src/train.py
       hash: md5
@@ -43,20 +43,20 @@ stages:
     outs:
     - path: models/model.joblib
       hash: md5
-      md5: ef05f61464f739e9d7efd920a22b89e1
-      size: 347772
+      md5: 269c482082d6e6571df81fea747c9823
+      size: 348012
   evaluate:
     cmd: python src/evaluate.py
     deps:
     - path: data/processed
       hash: md5
-      md5: 2567b7f9529334a75ef33fe9560a9255.dir
-      size: 1921729
+      md5: 15d36290db835998c79273810b039288.dir
+      size: 1200622
       nfiles: 2
     - path: models/model.joblib
       hash: md5
-      md5: ef05f61464f739e9d7efd920a22b89e1
-      size: 347772
+      md5: 269c482082d6e6571df81fea747c9823
+      size: 348012
     - path: src/evaluate.py
       hash: md5
       md5: 45dd1879eb27bf1fe9de9f2860edd11d
@@ -65,5 +65,5 @@ stages:
     outs:
     - path: metrics.json
       hash: md5
-      md5: 22b1e2bfffe0d12e5852aa8c2ab0db4d
-      size: 59
+      md5: 6fb051f49a1037280a02025d85456379
+      size: 56
