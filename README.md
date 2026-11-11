@@ -72,7 +72,20 @@ cat metrics.json
 `dvc repro` runs data preparation, model training, and evaluation in order.
 The first run downloads and prepares the dataset; subsequent unchanged runs
 should be up to date. The checked-in `dvc.lock` records the parameters and
-content hashes used by the pipeline.
+content hashes used by the pipeline. Training logs the sklearn model to MLflow's
+Model Registry and assigns the `champion` alias to the newly registered
+`agnews-clf` version, which is the model loaded by the serving API.
+
+To register a model after starting MLflow and setting
+`MLFLOW_TRACKING_URI`, rerun training against the prepared data:
+
+```bash
+python src/train.py
+```
+
+This is also useful if you trained before model registration was added. Once
+the run completes, check the `agnews-clf` model in the MLflow UI and confirm it
+has the `champion` alias before starting the API.
 
 Run three experiments with different model settings; each training run is
 logged to the MLflow server specified above:

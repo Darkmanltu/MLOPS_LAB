@@ -97,7 +97,7 @@ def main():
         if promote:
             client.set_registered_model_alias(MODEL_NAME, "champion", version)
 
-        with open("metrics.json", "w") as f:
+        with open("metrics_hpo.json", "w") as f:
             json.dump({"f1_macro": f1, "accuracy": history[-1][1]}, f)
         print(f"best={best} f1={f1:.4f} version={version} promoted={promote}")
 
