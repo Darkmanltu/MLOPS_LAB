@@ -119,7 +119,9 @@ training data is present, then build and load the trainer image:
 
 ```bash
 python -m dvc repro
-docker build -f docker/train.Dockerfile -t agnews-train:local .
+docker build -f docker/train.Dockerfile \
+  --build-arg GIT_COMMIT=$(git rev-parse HEAD) \
+  -t agnews-train:local .
 kind load docker-image agnews-train:local --name mlops
 ```
 
@@ -156,6 +158,35 @@ To run the Job again, delete the completed Job before applying the manifest:
 kubectl delete job agnews-train -n mlops
 kubectl apply -f k8s/50-train.yaml
 ```
+
+### U2 evidence run scripts
+
+The root `run_*.sh` scripts wrap the repeatable evidence commands. They do not
+run automatically; start each one when its prerequisite is ready:
+
+1. `./run_dvc_prepare.sh` prepares the DVC train/test data.
+2. `./run_train_image.sh` builds and loads the trainer image into the `mlops`
+   kind cluster. Override `TRAIN_IMAGE` or `KIND_CLUSTER` if needed.
+3. `./run_secret.sh` interactively creates or updates the MLflow credentials
+   Secret. Leave credentials blank only when MLflow authentication is disabled.
+4. `./run_mlflow_portforward.sh` forwards MLflow to `127.0.0.1:5001`; keep it
+   running in a separate terminal.
+5. `./run_train_job.sh` recreates the Kubernetes Job, waits for completion,
+   and prints its logs.
+6. `./run_cd_green.sh` dispatches CD with its default quality threshold. Wait
+   for success and confirm that the image was pushed before proceeding.
+7. `./run_serve.sh` applies the serving manifest and waits for rollout. Override
+   the default image with `SERVE_IMAGE=ghcr.io/darkmanltu/agnews-serve:<tag>`
+   when deploying a different published tag.
+8. In a separate terminal, run `./run_api_portforward.sh`; then run
+   `./run_loadtest.sh` to smoke-test the API and record 100-request results in
+   `docs/loadtest.json`.
+9. `./run_cd_red.sh` dispatches CD with `min_f1=0.99`. Both CD scripts require
+   GitHub CLI authentication (`gh auth login`). Confirm the red run stops at Quality
+   gate, before image build/push and manifest update.
+10. After a successful deployment, `./run_rollback.sh` shows rollout history
+   and asks before undoing the API deployment. Set `CONFIRM_ROLLBACK=yes` to
+   skip the prompt.
 
 For a clean reproducibility check, use a separate DVC experiment or restore
 the committed `params.yaml` and `dvc.lock`, then measure `time python -m dvc repro`.

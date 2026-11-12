@@ -14,7 +14,7 @@ from sklearn.linear_model import SGDClassifier
 from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
 
-SEED = int(os.getenv("SEED", 42))
+SEED = int(os.getenv("SEED", 67))
 MODEL_NAME = "agnews-clf"
 EXPERIMENT = "u2-agnews-hpo"
 N_TRIALS = int(os.getenv("N_TRIALS", 6))
@@ -28,9 +28,17 @@ def load_data():
 
 
 def git_commit():
-    result = subprocess.run(
-        ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False
-    )
+    commit = os.getenv("GIT_COMMIT")
+    if commit:
+        return commit
+
+    try:
+        result = subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True, check=False
+        )
+    except FileNotFoundError:
+        print("Git commit metadata unavailable: git is not installed and GIT_COMMIT is unset.")
+        return None
     if result.returncode:
         print(f"Git commit metadata unavailable: {result.stderr.strip()}")
         return None

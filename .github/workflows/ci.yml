@@ -39,4 +39,5 @@ jobs:
           context: .
           file: docker/${{ matrix.image }}.Dockerfile
           push: true
+          build-args: GIT_COMMIT=${{ github.sha }}
           tags: ghcr.io/darkmanltu/agnews-${{ matrix.image }}:${{ github.sha }}

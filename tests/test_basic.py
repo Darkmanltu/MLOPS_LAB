@@ -4,7 +4,7 @@ import sys
 
 import pandas as pd
 
-from src.train_hpo import EPOCHS, fit
+from src.train_hpo import EPOCHS, fit, git_commit
 
 
 def test_hpo_fit_returns_pipeline_and_epoch_history():
@@ -49,3 +49,18 @@ def test_quality_gate_accepts_and_rejects_threshold(tmp_path):
 
     assert passing.returncode == 0, passing.stdout + passing.stderr
     assert failing.returncode == 1, failing.stdout + failing.stderr
+
+
+def test_git_commit_uses_build_environment(monkeypatch):
+    monkeypatch.setenv("GIT_COMMIT", "abc123")
+    assert git_commit() == "abc123"
+
+
+def test_git_commit_without_git_is_nonfatal(monkeypatch):
+    monkeypatch.delenv("GIT_COMMIT", raising=False)
+
+    def missing_git(*args, **kwargs):
+        raise FileNotFoundError("git")
+
+    monkeypatch.setattr("src.train_hpo.subprocess.run", missing_git)
+    assert git_commit() is None
