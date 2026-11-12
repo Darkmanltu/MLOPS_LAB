@@ -5,9 +5,8 @@ stages:
     deps:
     - path: src/prepare.py
       hash: md5
-      md5: 59f8c496559e1ebd05807a2a82b87abc
-      size: 604
-      isexec: true
+      md5: 507531fdd6385c3dfc0b3030eda8c199
+      size: 579
     params:
       params.yaml:
         prepare:
@@ -31,9 +30,8 @@ stages:
       nfiles: 2
     - path: src/train.py
       hash: md5
-      md5: c0d1b049b0a57d7f9ab0c569290ed891
-      size: 1932
-      isexec: true
+      md5: d0d5b08bd6f396e94b9968a89786e306
+      size: 1886
     params:
       params.yaml:
         train:
@@ -43,7 +41,7 @@ stages:
     outs:
     - path: models/model.joblib
       hash: md5
-      md5: 269c482082d6e6571df81fea747c9823
+      md5: dad93837ec00d3d6dbf15ca0ab51fb31
       size: 348012
   evaluate:
     cmd: python src/evaluate.py
@@ -55,13 +53,12 @@ stages:
       nfiles: 2
     - path: models/model.joblib
       hash: md5
-      md5: 269c482082d6e6571df81fea747c9823
+      md5: dad93837ec00d3d6dbf15ca0ab51fb31
       size: 348012
     - path: src/evaluate.py
       hash: md5
-      md5: 45dd1879eb27bf1fe9de9f2860edd11d
-      size: 398
-      isexec: true
+      md5: d0c093fd7eb2d37cc7108e9fc87dcd34
+      size: 403
     outs:
     - path: metrics.json
       hash: md5
