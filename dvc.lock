@@ -41,7 +41,7 @@ stages:
     outs:
     - path: models/model.joblib
       hash: md5
-      md5: d1c1e808513528d362593921390d7e38
+      md5: d44801082df396ac3a5b3cd8cfa536f6
       size: 348012
   evaluate:
     cmd: python src/evaluate.py
@@ -53,7 +53,7 @@ stages:
       nfiles: 2
     - path: models/model.joblib
       hash: md5
-      md5: d1c1e808513528d362593921390d7e38
+      md5: d44801082df396ac3a5b3cd8cfa536f6
       size: 348012
     - path: src/evaluate.py
       hash: md5
