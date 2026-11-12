@@ -17,7 +17,7 @@ jobs:
       - run: python -m pytest -q
       - name: Reproduce pipeline
         env:
-          MLFLOW_TRACKING_URI: sqlite:///mlflow.db
+          MLFLOW_TRACKING_URI: sqlite:///${{ runner.temp }}/mlflow-${{ github.run_id }}.db
         run: dvc repro
       - name: Quality gate
         env: {MIN: "${{ inputs.min_f1 }}"}
