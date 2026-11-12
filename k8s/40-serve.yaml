@@ -9,7 +9,7 @@ spec:
     spec:
       containers:
         - name: api
-          image: ghcr.io/darkmanltu/agnews-serve:11651e91e99bd26d657fe6e9dd12b08059045691
+          image: ghcr.io/darkmanltu/agnews-serve:ade4d9f2657997f1358e39aae6f2d14127f4d0ce
           imagePullPolicy: IfNotPresent
           ports: [{containerPort: 8000}]
           envFrom:
