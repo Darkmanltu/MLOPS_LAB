@@ -7,3 +7,6 @@ train:
   C: 1.0
   max_features: 5000
   ngram_max: 2
+
+gate:
+  min_f1: 0.85

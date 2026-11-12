@@ -1,6 +1,8 @@
 import os
 from contextlib import asynccontextmanager
-import mlflow, mlflow.sklearn
+
+import mlflow
+import mlflow.sklearn
 from fastapi import FastAPI, HTTPException
 from mlflow import MlflowClient
 from pydantic import BaseModel

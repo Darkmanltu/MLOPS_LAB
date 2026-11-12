@@ -1,16 +1,17 @@
 import os
-import yaml
+import subprocess
+from pathlib import Path
+
 import joblib
-import pandas as pd
 import mlflow
 import mlflow.sklearn
+import pandas as pd
+import yaml
 from mlflow import MlflowClient
-from pathlib import Path
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.linear_model import LogisticRegression
-from sklearn.pipeline import Pipeline
 from sklearn.metrics import accuracy_score, f1_score
-import subprocess
+from sklearn.pipeline import Pipeline
 
 p = yaml.safe_load(open("params.yaml"))["train"]
 train = pd.read_csv("data/processed/train.csv")

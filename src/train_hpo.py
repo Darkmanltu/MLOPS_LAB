@@ -1,8 +1,12 @@
 import json
 import os
 import subprocess
-import mlflow, mlflow.data, mlflow.sklearn, optuna
+
+import mlflow
+import mlflow.data
+import mlflow.sklearn
 import numpy as np
+import optuna
 import pandas as pd
 from mlflow import MlflowClient
 from sklearn.feature_extraction.text import TfidfVectorizer
@@ -69,7 +73,7 @@ def main():
             mlflow.log_metric("accuracy", acc, step=step)
             mlflow.log_metric("f1_macro", f1, step=step)
 
-    with mlflow.start_run(run_name="hpo-parent", log_system_metrics=True) as parent:
+    with mlflow.start_run(run_name="hpo-parent", log_system_metrics=True):
         def objective(trial):
             params = {
                 "alpha": trial.suggest_float("alpha", 1e-6, 1e-3, log=True),

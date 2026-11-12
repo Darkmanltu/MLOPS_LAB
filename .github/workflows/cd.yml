@@ -1,0 +1,48 @@
+name: cd
+on:
+  workflow_dispatch:
+    inputs:
+      min_f1:
+        description: "Slenkstis (tuščia = iš params.yaml)"
+        required: false
+permissions: {contents: write, packages: write}
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements.txt pytest
+      - run: python -m pytest -q
+      - name: Reproduce pipeline
+        env:
+          MLFLOW_TRACKING_URI: sqlite:///mlflow.db
+        run: dvc repro
+      - name: Quality gate
+        env: {MIN: "${{ inputs.min_f1 }}"}
+        run: |
+          if [ -n "$MIN" ]; then
+            python scripts/quality_gate.py --threshold "$MIN"
+          else
+            python scripts/quality_gate.py
+          fi
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/serve.Dockerfile
+          push: true
+          tags: ghcr.io/darkmanltu/agnews-serve:${{ github.sha }}
+      - name: Update manifest
+        run: |
+          sed -i "s|image: ghcr.io/darkmanltu/agnews-serve:.*|image: ghcr.io/darkmanltu/agnews-serve:${GITHUB_SHA}|" k8s/40-serve.yaml
+          grep -q "image: ghcr.io/darkmanltu/agnews-serve:${GITHUB_SHA}" k8s/40-serve.yaml
+          git config user.name "cd-bot"; git config user.email "cd-bot@users.noreply.github.com"
+          git add k8s/40-serve.yaml
+          git commit -m "deploy ${GITHUB_SHA::7} [skip ci]"
+          git push

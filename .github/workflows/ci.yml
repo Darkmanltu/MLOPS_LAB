@@ -1,0 +1,42 @@
+name: ci
+on: [push, pull_request]
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12", cache: pip}
+      - run: pip install -r requirements.txt ruff pytest
+      - run: ruff check --select E4,E7,E9,F src tests scripts
+      - run: python -m pytest -q
+  build:
+    needs: test
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    permissions: {contents: read, packages: write}
+    strategy:
+      matrix: {image: [serve, train]}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        if: matrix.image == 'train'
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Prepare DVC data for trainer image
+        if: matrix.image == 'train'
+        run: |
+          pip install -r requirements.txt
+          dvc repro -s prepare
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: docker/${{ matrix.image }}.Dockerfile
+          push: true
+          tags: ghcr.io/darkmanltu/agnews-${{ matrix.image }}:${{ github.sha }}

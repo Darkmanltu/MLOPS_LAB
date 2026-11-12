@@ -1,4 +1,7 @@
-import json, joblib, pandas as pd
+import json
+
+import joblib
+import pandas as pd
 from sklearn.metrics import accuracy_score, f1_score
 
 model = joblib.load("models/model.joblib")

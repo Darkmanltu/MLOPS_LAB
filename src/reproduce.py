@@ -1,5 +1,11 @@
-import sys, json, shutil, subprocess, tempfile
-import yaml, mlflow
+import json
+import shutil
+import subprocess
+import sys
+import tempfile
+
+import mlflow
+import yaml
 from mlflow.tracking import MlflowClient
 
 run_id = sys.argv[1]
